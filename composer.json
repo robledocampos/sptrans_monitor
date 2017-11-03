@@ -1,0 +1,5 @@
+{
+  "require": {
+    "robledocampos/api_client": "dev-master"
+  }
+}

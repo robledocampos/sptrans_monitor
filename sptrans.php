@@ -1,34 +1,44 @@
 <?php
 
+Namespace SptransApi;
+
 require_once("database.php");
 
+use HttpApiClient\ApiClient;
+
 class sptrans{
-    private $apiUrl = "http://api.olhovivo.sptrans.com.br/v0/";
+
+    private $apiUrl = "http://api.olhovivo.sptrans.com.br/v2.1/";
     private $token = "13b402205e1d4578434ea3b9c4599651f769b7d9f8aa6e8257de21b74efd17a7";
     private $debug = 0;
-    private $credentials = null;
+    private $headers = ['Content-Length: 0'];
 
     public function auth(){
-        $request = array(
+        $parameters = [
             "token" => $this->token
-        );
-        $result = $this->makeCurl($this->apiUrl, $request, "Login/Autenticar/", true);
+        ];
+        $apiClient = new ApiClient($this->apiUrl);
+        $result = $apiClient->call("Login/Autenticar/", $parameters, null, $this->headers, "POST");
+
         return $result;
     }
 
     public function searchLines($query){
-        $request = array(
+        $parameters = [
             "termosBusca" => $query
-        );
-        $result = $this->makeCurl($this->apiUrl, $request, "Linha/Buscar/", false);
+        ];
+        $apiClient = new ApiClient($this->apiUrl);
+        $result = $apiClient->call("Linha/Buscar/", $parameters, null, $this->headers, "GET");
+
         return $result;
     }
 
     public function getLinePositions($lineCode){
-        $request = array(
+        $parameters = [
             "codigoLinha" => $lineCode
-        );
-        $result = $this->makeCurl($this->apiUrl, $request, "Posicao/", false);
+        ];
+        $apiClient = new ApiClient($this->apiUrl);
+        $result = $apiClient->call("Posicao/", $parameters, null, $this->headers, "GET");
         return $result;
     }
 
@@ -93,42 +103,6 @@ class sptrans{
         }else{
             echo "Not Autorized!\n";
         }
-    }
-
-    public function makeCurl($api_url, $request, $action, $type){
-        $request = http_build_query($request);
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $api_url . $action."?".$request);
-        curl_setopt($ch, CURLOPT_HEADER, 1);
-        if($this->credentials){
-            curl_setopt($ch, CURLOPT_COOKIE, "apiCredentials=".$this->credentials);
-        }
-        curl_setopt($ch, CURLOPT_HTTPHEADER,
-            array(
-                'Content-Length: 0'
-            )
-        );
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($ch, CURLOPT_POST, $type);
-        if ($this->debug) {
-            curl_setopt($ch, CURLOPT_VERBOSE, 1);
-        }
-        $result = curl_exec($ch);
-        preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $result, $matches);
-        $cookies = array();
-        foreach($matches[1] as $item) {
-            parse_str($item, $cookie);
-            $cookies = array_merge($cookies, $cookie);
-        }
-        if(isset($cookies['apiCredentials'])){
-            $this->credentials = $cookies['apiCredentials'];
-        }
-        $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-        $header = substr($result, 0, $header_size);
-        $body = substr($result, $header_size);
-        curl_close($ch);
-        return $body;
     }
 
 }
