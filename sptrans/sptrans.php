@@ -1,8 +1,6 @@
 <?php
 
-Namespace SptransApi;
-
-require_once("database.php");
+Namespace Sptrans;
 
 use HttpApiClient\ApiClient;
 
@@ -11,14 +9,18 @@ class sptrans{
     private $apiUrl = "http://api.olhovivo.sptrans.com.br/v2.1/";
     private $token = "13b402205e1d4578434ea3b9c4599651f769b7d9f8aa6e8257de21b74efd17a7";
     private $debug = 0;
+    private $cookie = null;
     private $headers = ['Content-Length: 0'];
+    private $ssl = false;
 
     public function auth(){
         $parameters = [
             "token" => $this->token
         ];
         $apiClient = new ApiClient($this->apiUrl);
-        $result = $apiClient->call("Login/Autenticar/", $parameters, null, $this->headers, "POST");
+        $result = $apiClient->call("Login/Autenticar/", $parameters, null, $this->headers, null, "POST", $this->ssl);
+        $cookies = $apiClient::getCookies(";", $result['header']['Set-Cookie']);
+        $this->cookie = $cookies[0];
 
         return $result;
     }
@@ -28,7 +30,7 @@ class sptrans{
             "termosBusca" => $query
         ];
         $apiClient = new ApiClient($this->apiUrl);
-        $result = $apiClient->call("Linha/Buscar/", $parameters, null, $this->headers, "GET");
+        $result = $apiClient->call("Linha/Buscar/", $parameters, null, $this->headers, $this->cookie, "GET", $this->ssl);
 
         return $result;
     }
@@ -38,7 +40,8 @@ class sptrans{
             "codigoLinha" => $lineCode
         ];
         $apiClient = new ApiClient($this->apiUrl);
-        $result = $apiClient->call("Posicao/", $parameters, null, $this->headers, "GET");
+        $result = $apiClient->call("Posicao/", $parameters, null, $this->headers, $this->cookie, "GET", $this->ssl);
+
         return $result;
     }
 
@@ -51,30 +54,30 @@ class sptrans{
             echo "Searching lines at API by number...\n";
             for($i = 1; $i <= 9; $i++){
                 $lines = $this->searchLines($i);
-                $lines = json_decode($lines);
+                $lines = json_decode($lines['body']);
                 foreach ($lines as $key => $line) {
-                    if(!in_array($line->CodigoLinha, $lineCodes)){
-                        echo "Saving line ".$line->CodigoLinha."...\n";
+                    if(!in_array($line->cl, $lineCodes)){
+                        echo "Saving line ".$line->cl."...\n";
                         $database->saveLine($line);
-                        array_push($lineCodes, $line->CodigoLinha);
+                        array_push($lineCodes, $line->cl);
                         echo "Saved...\n";
                     }else{
-                        echo "Line ".$line->CodigoLinha." already saved!\n";
+                        echo "Line ".$line->cl." already saved!\n";
                     }
                 }
             }
             echo "Searching lines at API by letters...\n";
             for($i = 0;$i < 26; $i++){
                 $lines = $this->searchLines(chr(97+$i));
-                $lines = json_decode($lines);
+                $lines = json_decode($lines['body']);
                 foreach ($lines as $key => $line) {
-                    if(!in_array($line->CodigoLinha, $lineCodes)){
-                        echo "Saving line ".$line->CodigoLinha."...\n";
+                    if(!in_array($line->cl, $lineCodes)){
+                        echo "Saving line ".$line->cl."...\n";
                         $database->saveLine($line);
-                        array_push($lineCodes, $line->CodigoLinha);
+                        array_push($lineCodes, $line->cl);
                         echo "Saved...\n";
                     }else{
-                        echo "Line ".$line->CodigoLinha." already saved!\n";
+                        echo "Line ".$line->cl." already saved!\n";
                     }
                 }
             }

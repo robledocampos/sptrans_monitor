@@ -1,7 +1,8 @@
 <?php
     require_once("autoload.php");
-    $sptrans = new SptransApi\sptrans();
+    $sptrans = new Sptrans\sptrans();
     $auth = $sptrans->auth();
-    print_r($auth);
-    die;
+
     $lines = $sptrans->getLines();
+print_r($lines);
+die;

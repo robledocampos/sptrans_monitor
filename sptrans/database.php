@@ -1,9 +1,13 @@
 <?php
 
+Namespace Sptrans;
+
+use mysqli;
+
 class database{
     private $host = "localhost";
     private $user = "root";
-    private $pass = "drogo27";
+    private $pass = "";
     private $database = "sptrans_monitor";
 
     public function __construct(){
