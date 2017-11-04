@@ -1,5 +1,5 @@
 <?php
-    require_once("sptrans.php");
-    $sptrans = new sptrans();
-    $lines = $sptrans->getPositions();
- ?>
+    require_once("autoload.php");
+
+    $sptrans = new Sptrans\sptrans();
+    $sptrans->getPositions();

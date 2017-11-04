@@ -17,8 +17,8 @@ class sptrans{
         $parameters = [
             "token" => $this->token
         ];
-        $apiClient = new ApiClient($this->apiUrl);
-        $result = $apiClient->call("Login/Autenticar/", $parameters, null, $this->headers, null, "POST", $this->ssl);
+        $apiClient = new ApiClient($this->apiUrl, null, false);
+        $result = $apiClient->call("Login/Autenticar/", $parameters,null, $this->headers,null,"POST", $this->ssl);
         $cookies = $apiClient::getCookies(";", $result['header']['Set-Cookie']);
         $this->cookie = $cookies[0];
 
@@ -29,7 +29,7 @@ class sptrans{
         $parameters = [
             "termosBusca" => $query
         ];
-        $apiClient = new ApiClient($this->apiUrl);
+        $apiClient = new ApiClient($this->apiUrl, null, false);
         $result = $apiClient->call("Linha/Buscar/", $parameters, null, $this->headers, $this->cookie, "GET", $this->ssl);
 
         return $result;
@@ -39,7 +39,7 @@ class sptrans{
         $parameters = [
             "codigoLinha" => $lineCode
         ];
-        $apiClient = new ApiClient($this->apiUrl);
+        $apiClient = new ApiClient($this->apiUrl, null, false);
         $result = $apiClient->call("Posicao/", $parameters, null, $this->headers, $this->cookie, "GET", $this->ssl);
 
         return $result;
