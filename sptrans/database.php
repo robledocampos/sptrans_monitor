@@ -41,8 +41,8 @@ class database{
     public function saveLine($line){
         $mysqli = $this->connect();
         $sql = "INSERT INTO bus_lines (codigo_linha, circular, letreiro, sentido, tipo, denominacao_tpts, denominacao_tstp, info)
-            VALUES(".$line->CodigoLinha.",".$line->Circular.",'".$line->Letreiro."',".$line->Sentido.",'".$line->Tipo."','".
-            utf8_decode($line->DenominacaoTPTS)."','".utf8_decode($line->DenominacaoTSTP)."','".$line->Informacoes."')";
+            VALUES(".$line->cl.",".$line->lc.",'".$line->lt."',".$line->sl.",'".$line->tl."','".
+            utf8_decode($line->tp)."','".utf8_decode($line->ts)."','".null."')";
         $result = $mysqli->query($sql);
         $this->close($mysqli);
         return $result;
